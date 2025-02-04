@@ -53,36 +53,43 @@ class Gameboard {
         }
     }
 
-    receiveAttack(x,y) {
-        //Check if these coordinates have already been hit
-        if(this.board[y][x] === "hit" || this.board[y][x] === "miss") return "Coordinates already hit";
-
+    receiveAttack(x, y) {
+        // Check if these coordinates have already been hit
+        if (this.board[y][x] === "hit" || this.board[y][x] === "miss") {
+            return "Coordinates already hit";
+        }
+    
         // Check if these coordinates contain a ship
-        if(this.board[y][x] !== null) {
-            this.board[y][x].hit();
-
-            // if this ship has sunk, remove it from the ships array
-            if(this.board[y][x].isSunk()){
-                for(let i = 0; i < this.ships.length; i++) {
-                    if(this.board[y][x].id === this.ships[i].id){
+        if (this.board[y][x] !== null) {
+            const ship = this.board[y][x];
+            ship.hit();
+    
+            // Set this coordinate to "hit" after the ship was hit
+            this.board[y][x] = "hit";
+    
+            // If this ship has sunk, remove it from the ships array
+            if (ship.isSunk()) {
+                for (let i = 0; i < this.ships.length; i++) {
+                    if (ship.id === this.ships[i].id) {
                         this.ships.splice(i, 1);
                         break;
                     }
                 }
             }
-
-            // Set these coordinates to 'hit'
-            this.board[y][x] = "hit";
-
+    
             // Check if any ships are left
-            return allShipsSunk();
-        }
-        else {
-            // Set these coordinates to "miss"
+            if (this.allShipsSunk()) {
+                return "All ships sunk";
+            } else {
+                return "Hit";
+            }
+        } else {
+            // If it's a miss, set the board position to "miss"
             this.board[y][x] = "miss";
+            return "Miss";
         }
     }
-
+    
     allShipsSunk() {
         return this.ships.length < 1;
     }
