@@ -14,3 +14,5 @@ class Ship {
         return this.timesHit >= this.length;
     }
 }
+
+module.exports = Ship;
