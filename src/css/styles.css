@@ -1,0 +1,54 @@
+
+@font-face {
+    font-family: 'Jura Demi-Bold';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Jura Demi-Bold'), url('../media/fonts/jura/JuraDemiBold.woff') format('woff');
+    }
+
+
+body{
+    text-align: center;
+    margin: 10px;
+    background: linear-gradient(to right, #001224, #0b4e84);
+    font-family: sans-serif;
+}
+
+h1{
+    font-size: 4em;
+    color: aqua;
+    background-color: rgba(13, 64, 158, 0.5);
+    border-bottom: 2px solid rgb(89, 233, 255);
+    width: fit-content;
+    padding-left: 20%;
+    padding-right: 20%;
+    margin: auto;
+    margin-bottom: 40px;
+    font-family: 'Jura Demi-Bold';
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+.gameboard {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr); 
+    grid-template-rows: repeat(10, 1fr);
+    width: 500px; /* Adjust as needed */
+    height: 500px; /* Adjust as needed */
+    border: 1px solid rgb(89, 233, 255);
+    border-radius: 20px;
+    gap: 5px;
+    padding: 20px;
+    margin: auto;
+}
+
+.cell {
+    border: 1px solid rgb(0, 84, 153);
+    background-color: rgb(14, 84, 109);
+    border-radius: 10px;
+}
+
+.cell:hover{
+    background-color: rgb(6, 175, 237);
+    cursor: pointer;
+}
