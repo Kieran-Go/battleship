@@ -2,7 +2,7 @@ const Ship = require("./ship");
 
 class Gameboard {
     constructor() {
-        // Initialize 10x10 gameboard as an array with 10 'rows'
+        // Initialize 10x10 gameboard using a 2D array
         this.board = Array.from({ length: 10 }, () => Array(10).fill(null));
         this.ships = [];
     }
@@ -51,6 +51,17 @@ class Gameboard {
             const currentY = dir === "y" ? y + i : y;
             this.board[currentY][currentX] = this.ships[shipIndex];
         }
+    }
+
+    // Returns the value of the given cell ("hit", "miss", occupied by a ship or null)
+    getCell(x, y) {
+        return this.board[y][x];
+    }
+
+    // Return true if cell is occupied by a ship. If the cell is not null, hit or miss, that means it is occupied.
+    cellIsOccupied(x,y) {
+        if(this.board[y][x] !== null && this.board[y][x] !== "hit" && this.board[y][x] !== "miss") return true;
+        return false;
     }
 
     receiveAttack(x, y) {

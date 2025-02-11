@@ -1,5 +1,5 @@
 // Generalized function to streamline creating an element with optional id, classes, and text
-export function newElement(type, text = null, id = null, classes = []) {
+function newElement(type, text = null, id = null, classes = []) {
   const element = document.createElement(type);
 
   // Set the text content if any is provided
@@ -16,7 +16,7 @@ export function newElement(type, text = null, id = null, classes = []) {
 }
 
 // Function to streamline creating an image element with optional parameters
-export function newImg(src = null, alt = null, id = null, classes = []) {
+function newImg(src = null, alt = null, id = null, classes = []) {
   const img = document.createElement("img");
 
   // Set the src attribute if provided
@@ -36,7 +36,7 @@ export function newImg(src = null, alt = null, id = null, classes = []) {
 }
 
 // Function to streamline creating an input element with optional parameters
-export function newInput(type, id = null, classes = [], name) {
+function newInput(type, id = null, classes = [], name) {
   const inp = document.createElement("input");
 
   inp.type = type;
@@ -54,7 +54,7 @@ export function newInput(type, id = null, classes = [], name) {
 }
 
 // Function to streamline creating a label
-export function newLabel(isFor, text = null, id = null, classes = []) {
+function newLabel(isFor, text = null, id = null, classes = []) {
   const label = document.createElement("label");
 
   // Set the for
@@ -72,3 +72,6 @@ export function newLabel(isFor, text = null, id = null, classes = []) {
   }
   return label;
 }
+
+// Export all functions using CommonJS syntax
+module.exports = { newElement, newImg, newInput, newLabel };
