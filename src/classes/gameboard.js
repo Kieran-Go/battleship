@@ -9,25 +9,17 @@ class Gameboard {
 
     addShip(x, y, length, dir) {
         // Error handling for invalid coordinates
-        if (dir === "x" && x + length > 10) {
-            return "Error: Ship exceeds grid boundaries horizontally";
-        }
-        if (dir === "y" && y + length > 10) {
-            return "Error: Ship exceeds grid boundaries vertically";
-        }
+        if (dir === "x" && x + length > 10) {console.log("Error: Ship exceeds grid boundaries horizontally"); return -1;}
+        if (dir === "y" && y + length > 10) {console.log("Error: Ship exceeds grid boundaries vertically"); return -1;}
 
         // Error handling for invalid direction
-        if (dir !== "x" && dir !== "y") {
-            return "Error: dir must be 'x' or 'y'";
-        }
+        if (dir !== "x" && dir !== "y") {console.log("Error: dir must be 'x' or 'y'"); return -1;}
 
         // Error handling for overlapping ships
         for (let i = 0; i < length; i++) {
             const checkX = dir === "x" ? x + i : x;
             const checkY = dir === "y" ? y + i : y;
-            if (this.board[checkY][checkX] !== null) {
-                return "Error: Ship overlaps with another ship";
-            }
+            if (this.board[checkY][checkX] !== null) {console.log("Error: Ship overlaps with another ship"); return -1;}
         }
 
         // Add the new ship to the ships array
@@ -50,6 +42,38 @@ class Gameboard {
             const currentX = dir === "x" ? x + i : x;
             const currentY = dir === "y" ? y + i : y;
             this.board[currentY][currentX] = this.ships[shipIndex];
+        }
+    }
+
+    // Function that adds all ships to the board in random locations
+    randomize() {
+        // Clear the board
+        this.board = Array.from({ length: 10 }, () => Array(10).fill(null));
+        this.ships = [];
+
+        const newShips = [
+            {x: 0, y: 0, length:5, dir: "x"}, // Carrier
+            {x: 0, y: 0, length:4, dir: "x"}, // Battleship
+            {x: 0, y: 0, length:3, dir: "x"}, // Cruiser
+            {x: 0, y: 0, length:3, dir: "x"}, // Submarine
+            {x: 0, y: 0, length:2, dir: "x"}, // Destroyer
+        ];
+
+        // Randomize directions
+        for(let i = 0; i < newShips.length; i++){
+            newShips[i].dir = (Math.random() < 0.5) ? "x" : "y";
+        };
+
+        // Keep randomizing the coordinates of each ship until a valid position is found
+        for(let i = 0; i < newShips.length; i++) {
+            const ship = newShips[i];
+            let positionFound = false;
+            while(!positionFound) {
+                ship.x = Math.floor(Math.random() * 10);
+                ship.y = Math.floor(Math.random() * 10);
+                const newPosition = this.addShip(ship.x, ship.y, ship.length, ship.dir);
+                if(newPosition !== -1) positionFound = true;
+            }
         }
     }
 
