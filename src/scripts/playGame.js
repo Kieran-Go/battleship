@@ -9,9 +9,15 @@ const playGame = (players) => {
 
     // Wait variable to avoid the player making multiple moves in one turn
     let waitingForNextRound = false;
+    const waitTime = 1500;
+    const firingTime = 1500;
 
     // When true, game has ended
     let gameEnded = false;
+
+    // Fixed position text displaying the last attack's result (hidden by default)
+    attackStatus = newElement("h2", "Hit!", null, ["attackStatus"]);
+    content.appendChild(attackStatus);
 
     const init = () => {
         createGameboards();
@@ -19,8 +25,8 @@ const playGame = (players) => {
 
     // Create each player's board and add to the DOM
     const createGameboards = () => {
-        // Header saying which player's turn it is
-        content.appendChild(newElement("h2", `${activePlayer.name}'s Turn`));
+        // Header saying which player's turn it is or who the winner was
+        content.appendChild(newElement("h2", `${activePlayer.name}'s Turn`, null, ["gameStatus"]));
 
         const container = newElement("div", null, null, ["gameContainer"]);
 
@@ -92,39 +98,76 @@ const playGame = (players) => {
 
         // If attackResult is one of these three, it means a valid move has been made
         if(attackResult === "Miss" || attackResult === "Hit" || attackResult === "All ships sunk"){
-            // Determine the correct gameboard
-            const boardId = inactivePlayer === players[0] ? "gameboard0" : "gameboard1";
+            // Update and show attack status
+            updateAttackStatus("Firing...");
+            showAttackStatus();
 
-            // Get the cell element of the hit cell
-            const cell = document.querySelector(`#${boardId} [id='${y}:${x}']`);
+            // Play the firing sfx
+            playSFX("Fire");
 
-            // If hit or miss, set the cell element's class accordingly
-            if(attackResult === "Miss") {cell.classList.add("miss"); moveMade = true;}
-            else if(attackResult === "Hit") {cell.classList.add("hit"); moveMade = true;}
+            setTimeout(() =>{
+                // Determine the correct gameboard
+                const boardId = inactivePlayer === players[0] ? "gameboard0" : "gameboard1";
 
-            // If all ships have sunk, the game is over
-            else {
-                cell.classList.add("hit");
-                endGame(activePlayer);
-            }
+                // Get the cell element of the hit cell
+                const cell = document.querySelector(`#${boardId} [id='${y}:${x}']`);
+
+                // If hit or miss, set the cell element's class accordingly
+                if(attackResult === "Miss") {cell.classList.add("miss"); playSFX(attackResult); moveMade = true;}
+                else if(attackResult === "Hit") {cell.classList.add("hit"); playSFX(attackResult); moveMade = true;}
+
+                // If all ships have sunk, the game is over
+                else {
+                    cell.classList.add("hit");
+                    endGame(activePlayer);
+                }
+
+                // If a valid move was made, wait a short moment, then change who's turn it is
+                if(moveMade) {
+                    // Update attack status
+                    updateAttackStatus(attackResult + "!");
+                    waitingForNextRound = true;
+                    setTimeout(() => {
+                        hideAttackStatus();
+                        nextRound();
+                        waitingForNextRound = false;
+                    }, waitTime);
+                }
+            }, firingTime);
+            
         }
         else return;
-
-        // If a valid move was made, wait a short moment, then change who's turn it is
-        if(moveMade) {
-            waitingForNextRound = true;
-            setTimeout(() => {
-                nextRound();
-                waitingForNextRound = false;
-            }, 1000);
-        }
     };
+
+    const updateAttackStatus = (result) => {
+        // Update attackStatuselement and show it
+        attackStatus.textContent = result; // Update text
+    };
+    const showAttackStatus = () => {
+        attackStatus.style.display = "block"; // Show element
+    };
+    const hideAttackStatus = () => {
+        attackStatus.style.display = "none"; // hide element
+    };
+
+    // Plays a sound effect
+    const playSFX = (sfx) => {
+        // const path = `../media/sound/${sfx}.mp3;`;
+        const path = "http://localhost/path/to/media/sound/" + sfx + ".mp3";
+        console.log(path);
+        const audio = new Audio(path);
+        
+        audio.play().catch(error => {
+            console.error("Error playing sound:", error);
+        });
+    };
+    
 
     // Ends the game and displays the winner
     const endGame = (winner) => {
         document.querySelector("#gameboard0").classList.remove("disabled");
         document.querySelector("#gameboard1").classList.remove("disabled");
-        document.querySelector("h2").textContent = `Game over! ${winner.name} wins!`;
+        document.querySelector(".gameStatus").textContent = `Game over! ${winner.name} wins!`;
 
         revealShips();
         gameEnded = true;
