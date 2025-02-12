@@ -15,8 +15,8 @@ const playerOne = new Player();
 const playBtn = document.querySelector(".playBtn");
 playBtn.addEventListener("click", () => {
     // Determine if the player is playing agains another player
-    const playerVsPlayer = (document.querySelector("select").value === "player") ? true : false;
+    const vsPlayer = (document.querySelector("select").value === "player") ? true : false;
 
     // Set up the game
-    setupGame(playerVsPlayer).init(playerOne);
+    setupGame(vsPlayer).init(playerOne);
 });

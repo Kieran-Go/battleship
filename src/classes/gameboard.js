@@ -7,6 +7,7 @@ class Gameboard {
         this.ships = [];
     }
 
+    // Add a new ship to the given coordinates
     addShip(x, y, length, dir) {
         // Error handling for invalid coordinates
         if (dir === "x" && x + length > 10) {console.log("Error: Ship exceeds grid boundaries horizontally"); return -1;}
@@ -45,7 +46,7 @@ class Gameboard {
         }
     }
 
-    // Function that adds all ships to the board in random locations
+    // Add all ships to the board in random locations
     randomize() {
         // Clear the board
         this.board = Array.from({ length: 10 }, () => Array(10).fill(null));
@@ -107,6 +108,7 @@ class Gameboard {
                 for (let i = 0; i < this.ships.length; i++) {
                     if (ship.id === this.ships[i].id) {
                         this.ships.splice(i, 1);
+                        console.log(this.ships);
                         break;
                     }
                 }

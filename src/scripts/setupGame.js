@@ -1,15 +1,14 @@
-const Ship = require("../classes/ship");
-const Gameboard = require("../classes/gameboard");
 const Player = require("../classes/player");
+const playGame = require("./playGame");
 const { newElement, newImg, newInput, newLabel } = require("./domUtility");
 
 
-const setupGame = (playerVsPlayer = false) => {
+const setupGame = (vsPlayer = false) => {
+    // Shorthand for the content div
     const content = document.querySelector(".content");
 
-    // Keep track of the players globally
-    let pOne = null;
-    let pTwo = null;
+    // Array for players
+    const players = [];
 
     const init = (player) => {
         // First, clear the page of all content
@@ -18,19 +17,11 @@ const setupGame = (playerVsPlayer = false) => {
         // Randomize the player
         player.gameboard.randomize();
 
-        // If the player is a human
-        if(player.type !== "computer"){
-            // Show the settings buttons for the player
-            displaySettingsButtons(player);
+        // Show the settings for the player
+        displaySettingsButtons(player);
 
-            // Display the player's gameboard
-            showGameboard(player);
-        }
-        // If the player is a computer, it means we've finished setting up for two players. Start the game
-        else{
-            pTwo = player;
-            startGame();
-        }
+        // Show the player's gameboard during setup
+        showGameboard(player);
     };
 
     // Clears all html inside the content div container
@@ -53,14 +44,8 @@ const setupGame = (playerVsPlayer = false) => {
                 // Create the cell element
                 const cell = newElement("div", null, `${y}:${x}`, ["cell"]);
 
-                // Check if cell is occupied by a ship and has been hit or missed
+                // Check if cell is occupied by a ship
                 if(player.gameboard.cellIsOccupied(x,y)) cell.classList.add("occupied");
-                else{
-                    const cellStatus = player.gameboard.getCell(x, y);
-                    if(cellStatus !== null){
-                        cell.classList.add(cellStatus);
-                    }
-                }
 
                 // Append the cell to the gameboard
                 gb.appendChild(cell);
@@ -71,10 +56,12 @@ const setupGame = (playerVsPlayer = false) => {
         content.appendChild(gb);
     };
 
-    // Initializes the display settings for the player
+    // Initializes settings for the player
     const displaySettingsButtons = (player) => {
         // Heading
         content.appendChild(newElement("h2", `${player.name}'s Ships`));
+
+        // Container
         const container = newElement("div", null, null, ["setupContainer"]);
 
         // Continue and randomize buttons
@@ -89,20 +76,21 @@ const setupGame = (playerVsPlayer = false) => {
 
         // Event listener for the continue button
         continueBtn.addEventListener("click", () => {
-            // If player is player 1
-            if(player.name === "Player 1"){
-                pOne = player;
-                // Check if we're going up against another player or a computer, and initialize them accordingly
-                if(playerVsPlayer) init(new Player("Player 2"));
+
+            // Push player to the players array
+            players.push(player);
+
+            // If the array has less than two players
+            if(players.length < 2) {
+                // Setup player depending on if the opponent is human or not
+                if(vsPlayer) init(new Player("Player 2"));
                 else init(new Player("Computer", "computer"));
             }
-            // If not player 1, it means we have finished setting up two players. Time to start the game
+            // If the array has two players, start the game
             else{
                 clearPage();
-                pTwo = player;
                 startGame();
             }
-
         });
 
         // Append elements to content
@@ -112,8 +100,7 @@ const setupGame = (playerVsPlayer = false) => {
     };
 
     function startGame() {
-        const players = [pOne, pTwo];
-        console.log(players);
+        playGame(players).init();
     }
 
     return {init};

@@ -35,7 +35,7 @@ h2{
     width: fit-content;
     padding: 10px;
     margin: auto;
-    margin-bottom: 20px;
+    margin-bottom: 40px;
     font-family: 'Jura Demi-Bold';
 }
 
@@ -92,13 +92,15 @@ button:hover{
     display: grid;
     grid-template-columns: repeat(10, 1fr); 
     grid-template-rows: repeat(10, 1fr);
-    width: 500px; 
-    height: 500px;
-    border: 1px solid rgb(89, 233, 255);
+    width: 400px; 
+    height: 400px;
+    border: 2px solid rgb(89, 233, 255);
     border-radius: 20px;
     gap: 5px;
     padding: 20px;
     margin: auto;
+    margin-bottom: 50px;
+    transition: transform 1.5s ease;
 }
 
 /* Represents a single cell on the gameboard */
@@ -109,7 +111,7 @@ button:hover{
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative; /* Ensures child elements position relative to this */
+    position: relative;
 }
 /* Draw a dot on occupied cells to represent part of a ship */
 .occupied::before, .hit::before {
@@ -121,9 +123,9 @@ button:hover{
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* Center the dot */
+    transform: translate(-50%, -50%);
 }
-.cell:hover {
+.cell:not(.hit):not(.miss):hover {
     background-color: rgb(6, 175, 237);
     cursor: pointer;
 }
@@ -138,13 +140,28 @@ button:hover{
 
 .setupContainer {
     display: flex;
-    justify-content: space-between; /* Ensures one button goes left, the other right */
+    justify-content: space-between;
     width: 500px;
     margin: auto;
     gap: 30px;
     margin-bottom: -20px;
 }
-
 .setupContainer button {
     flex: 1;
+}
+
+/* Contains the gameboards for each player */
+.gameContainer {
+    display: flex;
+}
+
+/* If disabled, gray out and reduce size */
+.disabled {
+    filter: grayscale(100%) opacity(50%);
+    pointer-events: none;
+    transform : scale(0.75);
+}
+/* Ensure children of disabled element cannot be interacted with */
+.disabled * {
+    pointer-events: none;
 }
