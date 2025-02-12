@@ -17,11 +17,18 @@ const setupGame = (vsPlayer = false) => {
         // Randomize the player
         player.gameboard.randomize();
 
-        // Show the settings for the player
-        displaySettingsButtons(player);
+        if(player.type === "player") {
+            // Show the settings for the player
+            displaySettingsButtons(player);
 
-        // Show the player's gameboard during setup
-        showGameboard(player);
+            // Show the player's gameboard during setup
+            showGameboard(player);
+        }
+        else {
+            players.push(player);
+            console.log(players);
+            playGame(players).init();
+        }
     };
 
     // Clears all html inside the content div container

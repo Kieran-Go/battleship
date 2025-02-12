@@ -21,6 +21,9 @@ const playGame = (players) => {
     const attackStatus = newElement("h2", "Hit!", null, ["attackStatus"]);
     content.appendChild(attackStatus);
 
+    // Array to track the position of the computer's last successful hit
+    const computerLastHit = [];
+
     const init = () => {
         createGameboards();
     };
@@ -230,9 +233,79 @@ const playGame = (players) => {
         if(activePlayer.type === "computer") computerMakeMove();
     };
 
-    // Automatically play a move for computer players
+    // Automatically make a move for computer player
     const computerMakeMove = () => {
-        // Not done yet
+        let coordinates = [];
+        const gb = players[0].gameboard.board;
+        console.log(computerLastHit);
+
+        coordinates = randomAttack();
+
+        // If coordinates are occupied by a ship, update the computerLastHit array
+        const finalX = coordinates[0];
+        const finalY = coordinates[1];
+        if(gb[finalY][finalX] !== null && gb[finalY][finalX] !== "hit" && gb[finalY][finalX] !== "miss"){
+            computerLastHit[0] = finalX;
+            computerLastHit[1] = finalY;
+        }
+
+        // Fire using the valid coordinates
+        fire(finalX, finalY);
+    };
+
+    // Keeps picking a random position and returns only when a valid position is found
+    const randomAttack = () => {
+        const gb = players[0].gameboard.board;
+        const coordinates = [];
+        let foundCoordinates = false;
+        while(!foundCoordinates) {
+            // Randomize the target coordinates
+            let targetX = Math.floor(Math.random() * 10);
+            let targetY = Math.floor(Math.random() * 10);
+
+            // If coordinates are valid
+            if(gb[targetY][targetX] !== "miss" && gb[targetY][targetX] !== "hit") {
+                coordinates[0] = targetX;
+                coordinates[1] = targetY;
+                foundCoordinates = true;
+            }
+        }
+        return  coordinates;
+    };
+
+    const calculatedAttack = () => {
+        const gb = players[0].gameboard.board;
+        const coordinates = [];
+        const lastX = computerLastHit[0];
+        const lastY = computerLastHit[1];
+
+        // Check to the right
+        if(gb[lastY][lastX + 1] !== "miss" && gb[lastY][lastX + 1] !== "hit" && lastX + 1 < 10) {
+            coordinates[0] = lastX + 1;
+            coordinates[1] = lastY;
+        }
+        // Check to the left
+        else if(gb[lastY][lastX - 1] !== "miss" && gb[lastY][lastX - 1] !== "hit" && lastX - 1 > -1) {
+            coordinates[0] = lastX - 1;
+            coordinates[1] = lastY;
+        }
+        // Check up
+        else if(gb[lastY - 1][lastX] !== "miss" && gb[lastY - 1][lastX] !== "hit" && lastY - 1 > -1) {
+            coordinates[0] = lastX;
+            coordinates[1] = lastY - 1;
+        }
+        // Check down
+        else if(gb[lastY + 1][lastX] !== "miss" && gb[lastY + 1][lastX] !== "hit" && lastY + 1 < 10) {
+            coordinates[0] = lastX;
+            coordinates[1] = lastY + 1;
+        }
+        // No valid positions nearby. Reset computerLastHit and perform a random attack
+        else {
+            computerLastHit.length = 0;
+            coordinates = randomAttack();
+        }
+
+        return coordinates;
     };
 
     // Returns the player who's turn it isn't
