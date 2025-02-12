@@ -7,16 +7,18 @@ const playGame = (players) => {
     // Track which player's turn it is
     let activePlayer = players[0]; // Player 1 goes first
 
-    // Wait variable to avoid the player making multiple moves in one turn
+    // Wait variable
     let waitingForNextRound = false;
     const waitTime = 1500;
-    const firingTime = 1500;
+
+    // When true, it means a fire has been shot. Helps prevent multilple fires per round
+    let fired = false;
 
     // When true, game has ended
     let gameEnded = false;
 
-    // Fixed position text displaying the last attack's result (hidden by default)
-    attackStatus = newElement("h2", "Hit!", null, ["attackStatus"]);
+    // Fixed position text element displaying the last attack's result (hidden by default)
+    const attackStatus = newElement("h2", "Hit!", null, ["attackStatus"]);
     content.appendChild(attackStatus);
 
     const init = () => {
@@ -59,7 +61,7 @@ const playGame = (players) => {
     const initCellClickEvent = (cell) => {
         cell.addEventListener("click", () => {
             // Prevent multiple clicks per round, or firing when the game has ended
-            if(waitingForNextRound || gameEnded) return;
+            if(waitingForNextRound || gameEnded || fired) return;
 
             // If it is the computer's turn, no clicking allowed
             if(activePlayer.type === "computer") return;
@@ -87,7 +89,7 @@ const playGame = (players) => {
     // Attempt to fire a shot at the given coordinates
     const fire = (x, y) => {
         // Track if a move has already been made
-        let moveMade = false;
+        if(fired) return;
 
         // Get the player who's turn it isn't
         const inactivePlayer = getInactivePlayer();
@@ -98,6 +100,7 @@ const playGame = (players) => {
 
         // If attackResult is one of these three, it means a valid move has been made
         if(attackResult === "Miss" || attackResult === "Hit" || attackResult === "All ships sunk"){
+            fired = true;
             // Update and show attack status
             updateAttackStatus("Firing...");
             showAttackStatus();
@@ -113,17 +116,19 @@ const playGame = (players) => {
                 const cell = document.querySelector(`#${boardId} [id='${y}:${x}']`);
 
                 // If hit or miss, set the cell element's class accordingly
-                if(attackResult === "Miss") {cell.classList.add("miss"); playSFX(attackResult); moveMade = true;}
-                else if(attackResult === "Hit") {cell.classList.add("hit"); playSFX(attackResult); moveMade = true;}
+                if(attackResult === "Miss") {cell.classList.add("miss"); playSFX(attackResult);}
+                else if(attackResult === "Hit") {cell.classList.add("hit"); playSFX(attackResult);}
 
                 // If all ships have sunk, the game is over
                 else {
                     cell.classList.add("hit");
+                    playSFX("Hit");
+                    updateAttackStatus("Hit!");
                     endGame(activePlayer);
                 }
 
                 // If a valid move was made, wait a short moment, then change who's turn it is
-                if(moveMade) {
+                if(fired && !gameEnded) {
                     // Update attack status
                     updateAttackStatus(attackResult + "!");
                     waitingForNextRound = true;
@@ -133,29 +138,27 @@ const playGame = (players) => {
                         waitingForNextRound = false;
                     }, waitTime);
                 }
-            }, firingTime);
+            }, waitTime);
             
         }
         else return;
     };
 
+    // Functions for updating, showing and hiding the attack status element
     const updateAttackStatus = (result) => {
-        // Update attackStatuselement and show it
-        attackStatus.textContent = result; // Update text
+        attackStatus.textContent = result;
     };
     const showAttackStatus = () => {
-        attackStatus.style.display = "block"; // Show element
+        attackStatus.style.display = "block";
     };
     const hideAttackStatus = () => {
-        attackStatus.style.display = "none"; // hide element
+        attackStatus.style.display = "none";
     };
 
     // Plays a sound effect
     const playSFX = (sfx) => {
-        // const path = `../media/sound/${sfx}.mp3;`;
-        const path = "http://localhost/path/to/media/sound/" + sfx + ".mp3";
-        console.log(path);
-        const audio = new Audio(path);
+        const sound =  require(`../media/sound/${sfx}.mp3`);
+        const audio = new Audio(sound);
         
         audio.play().catch(error => {
             console.error("Error playing sound:", error);
@@ -165,12 +168,16 @@ const playGame = (players) => {
 
     // Ends the game and displays the winner
     const endGame = (winner) => {
-        document.querySelector("#gameboard0").classList.remove("disabled");
-        document.querySelector("#gameboard1").classList.remove("disabled");
-        document.querySelector(".gameStatus").textContent = `Game over! ${winner.name} wins!`;
-
-        revealShips();
         gameEnded = true;
+        setTimeout(() => {
+            document.querySelector("#gameboard0").classList.remove("disabled");
+            document.querySelector("#gameboard1").classList.remove("disabled");
+            document.querySelector(".gameStatus").textContent = `Game over! ${winner.name} wins!`;
+
+            hideAttackStatus();
+
+            revealShips();
+        },waitTime);
     };
 
     // Show all ships on each gameboard
@@ -201,6 +208,7 @@ const playGame = (players) => {
 
     // Switch which player's turn it is and adjust gameboard classes accordingly
     const nextRound = () => {
+        fired = false;
         // Switch player turns
         const inactivePlayer = getInactivePlayer();
         activePlayer = inactivePlayer;
@@ -216,7 +224,7 @@ const playGame = (players) => {
         }
 
         // Display a header saying who's turn it is
-        document.querySelector("h2").textContent = `${activePlayer.name}'s Turn`;
+        document.querySelector(".gameStatus").textContent = `${activePlayer.name}'s Turn`;
 
         // If the currently active player is a computer, their move is taken automatically
         if(activePlayer.type === "computer") computerMakeMove();
